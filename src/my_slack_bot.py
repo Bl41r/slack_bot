@@ -11,6 +11,7 @@ from slackclient import SlackClient
 import requests
 import re
 import schedule
+import sys
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
@@ -19,7 +20,7 @@ TEST_CHANNEL = 'C3EKFEUKH'
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMANDS = ["grade", "order", "attack", "sleep", "book", "what is the book of the day?"]
+EXAMPLE_COMMANDS = ["grade", "order", "attack", "book", "what is the book of the day?"]
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -50,7 +51,6 @@ def do_response(cmd, body):
         'grade': 'Yesss.  Grading ' + body,
         'order': 'Ordering ' + body,
         'attack': 'I will ssstrike ' + body + ' down.',
-        'sleep': 'zZzZz ... zZzZz ...',
         'what is the book of the day?': find_book_of_day(),
         'book': find_book_of_day(),
     }
@@ -61,6 +61,11 @@ def handle_command(command, channel):
     """Receive commands directed at the bot and determines if valid."""
     command = command.split()
     response = "I cannot undersssstand you."
+
+    if command[0].lower() == 'sleep':
+        slack_client.api_call("chat.postMessage", channel=channel,
+                              text='zZzZzZz...', as_user=True)
+        sys.exit(0)
 
     if command[0].lower() in EXAMPLE_COMMANDS:
         response = do_response(command[0], command[1:])
