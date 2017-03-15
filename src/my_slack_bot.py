@@ -11,15 +11,16 @@ from slackclient import SlackClient
 import requests
 import re
 import schedule
+import sys
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
 MASTER_ID = os.environ.get("MASTER_ID") or 1
-TEST_CHANNEL = 'C3EKFEUKH'
+TEST_CHANNEL = 'C0ANN15PD'
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMANDS = ["grade", "order", "attack", "sleep", "book", "what is the book of the day?"]
+EXAMPLE_COMMANDS = ["grade", "order", "attack", "book", "what is the book of the day?"]
 
 # instantiate Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -50,7 +51,6 @@ def do_response(cmd, body):
         'grade': 'Yesss.  Grading ' + body,
         'order': 'Ordering ' + body,
         'attack': 'I will ssstrike ' + body + ' down.',
-        'sleep': 'zZzZz ... zZzZz ...',
         'what is the book of the day?': find_book_of_day(),
         'book': find_book_of_day(),
     }
@@ -61,6 +61,11 @@ def handle_command(command, channel):
     """Receive commands directed at the bot and determines if valid."""
     command = command.split()
     response = "I cannot undersssstand you."
+
+    if command[0].lower() == 'sleep':
+        slack_client.api_call("chat.postMessage", channel=channel, text='zZzZzZ ...', as_user=True)
+        print('going to sleep...')
+        sys.exit(0)
 
     if command[0].lower() in EXAMPLE_COMMANDS:
         response = do_response(command[0], command[1:])
@@ -98,7 +103,7 @@ if __name__ == "__main__":
     READ_WEBSOCKET_DELAY = 2    # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
         print("py_bot connected and running!")
-        schedule.every().day.at("12:22").do(handle_command, 'book', TEST_CHANNEL)
+        schedule.every().day.at("18:00").do(handle_command, 'book', TEST_CHANNEL)
         time.sleep(1)
         while True:
 
@@ -108,6 +113,7 @@ if __name__ == "__main__":
                 schedule.run_pending()
             except:
                 print('error: ', tmp)
+                slack_client.rtm_connect()
 
             if command and channel:
                 handle_command(command, channel)
