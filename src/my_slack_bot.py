@@ -63,8 +63,9 @@ def handle_command(command, channel):
     response = "I cannot undersssstand you."
 
     if command[0].lower() == 'sleep':
-        slack_client.api_call("chat.postMessage", channel=channel, text='zZzZzZ ...', as_user=True)
-        print('going to sleep...')
+
+        slack_client.api_call("chat.postMessage", channel=channel,
+                              text='zZzZzZz...', as_user=True)
         sys.exit(0)
 
     if command[0].lower() in EXAMPLE_COMMANDS:
