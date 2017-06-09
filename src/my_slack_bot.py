@@ -93,7 +93,7 @@ def parse_slack_output(slack_rtm_output):
                     return (output['text'].split(AT_BOT)[1].strip().lower(),
                             output['channel'])
                 else:
-                    slack_client.api_call("chat.postMessage", channel=channel,
+                    slack_client.api_call("chat.postMessage", channel=output['channel'],
                                           text="hisssss!", as_user=True)
                     print('Command issued not from master.')
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 command, channel = tmp
                 schedule.run_pending()
             except:
-                print('error: ', tmp)
+                print('error!')
                 slack_client.rtm_connect()
 
             if command and channel:
